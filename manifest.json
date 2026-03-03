@@ -1,16 +1,24 @@
 {
-  "short_name": "Tysiąc 1.7",
+  "short_name": "Tysiąc Master",
   "name": "Tysiąc Master Scoreboard",
   "icons": [
     {
-      "src": "https://via.placeholder.com/192/6c5ce7/ffffff?text=1K",
+      "src": "https://img.itch.zone/aW1nLzE5OTQ0MjUwLnBuZw==/original/k466N%2B.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any"
     },
     {
-      "src": "https://via.placeholder.com/512/6c5ce7/ffffff?text=1K",
+      "src": "https://img.itch.zone/aW1nLzE5OTQ0MjUzLnBuZw==/original/7Xm0bY.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any"
+    },
+    {
+      "src": "https://img.itch.zone/aW1nLzE5OTQ0MjUzLnBuZw==/original/7Xm0bY.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "maskable"
     }
   ],
   "start_url": "./index.html",
@@ -18,5 +26,5 @@
   "display": "standalone",
   "scope": "./",
   "theme_color": "#6c5ce7",
-  "description": "Licznik punktów do gry w Tysiąca."
+  "description": "Profesjonalny licznik punktów do gry w Tysiąca."
 }
