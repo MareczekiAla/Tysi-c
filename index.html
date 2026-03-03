@@ -3,174 +3,269 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tysiąc Master v1.7.5</title>
+    <title>Tysiąc Master v1.8.0</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6c5ce7">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+    <link rel="apple-touch-icon" href="https://img.itch.zone/aW1nLzE5OTQ0MjUwLnBuZw==/original/k466N%2B.png">
 
     <style>
         :root { --primary: #6c5ce7; --bg: #0b0c10; --card: #1f2833; --text: #ffffff; --accent: #66fcf1; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .app { width: 100%; max-width: 480px; }
-        .logo { text-align: center; margin: 15px 0; }
-        h1 { text-align: center; color: var(--accent); margin-bottom: 15px; font-size: 1.4rem; letter-spacing: 1px; }
-        .card { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        
+        /* Nowe Logo SVG */
+        .logo { text-align: center; margin: 20px 0; }
+        .app-icon-svg { width: 70px; height: 70px; filter: drop-shadow(0 0 8px var(--accent)); }
+        
+        h1 { text-align: center; font-weight: 900; background: linear-gradient(to right, #66fcf1, #45a29e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; font-size: 1.8rem; letter-spacing: 1px; }
+        
+        .setup-card, .round-form, .history-card { background: var(--card); padding: 20px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px; border: 1px solid #333; }
         label { display: block; font-size: 0.7rem; margin-bottom: 5px; color: #888; font-weight: bold; text-transform: uppercase; }
-        input, select { width: 100%; padding: 14px; background: #0b0c10; border: 1px solid #45a29e; color: white; border-radius: 12px; font-size: 1rem; margin-bottom: 15px; }
-        .score-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .score-item { background: #1f2833; padding: 12px; border-radius: 15px; text-align: center; border-bottom: 4px solid var(--primary); }
-        .score-val { display: block; font-size: 1.4rem; font-weight: bold; color: var(--accent); }
-        .score-name { font-size: 0.7rem; color: #c5c6c7; text-transform: uppercase; }
-        .btn { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 15px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        input, select { width: 100%; padding: 14px; background: #0b0c10; border: 1px solid #45a29e; color: white; border-radius: 12px; font-size: 1rem; margin-bottom: 12px; }
+        
+        .score-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .score-item { background: #1f2833; padding: 15px; border-radius: 18px; text-align: center; border-bottom: 4px solid var(--primary); cursor: pointer; transition: 0.2s; }
+        .score-item:active { transform: scale(0.95); }
+        .score-val { display: block; font-size: 1.8rem; font-weight: 900; color: var(--accent); pointer-events: none; }
+        .score-name { font-size: 0.8rem; font-weight: bold; color: #c5c6c7; pointer-events: none; }
+
+        .btn { background: var(--primary); color: white; border: none; width: 100%; padding: 18px; border-radius: 16px; font-weight: 900; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4); transition: 0.2s; }
+        .btn:active { transform: scale(0.98); opacity: 0.9; }
+        
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .history { overflow-y: auto; max-height: 250px; font-size: 0.8rem; }
-        table { width: 100%; border-collapse: collapse; text-align: center; }
-        th { color: var(--accent); padding: 8px; border-bottom: 2px solid #444; position: sticky; top: 0; background: var(--card); }
-        td { padding: 10px; border-bottom: 1px solid #333; cursor: pointer; }
         .hidden { display: none !important; }
+        
+        /* Tabela historii */
+        .history-card { overflow-x: auto; padding: 15px; max-height: 250px; overflow-y: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th { border-bottom: 2px solid var(--accent); padding: 10px; text-align: center; color: var(--accent); position: sticky; top: 0; background: var(--card); z-index: 10; }
+        td { padding: 12px; text-align: center; border-bottom: 1px solid #333; cursor: pointer; }
+        td:hover { background: rgba(102, 252, 241, 0.1); }
+        
+        .footer { text-align: center; font-size: 0.65rem; color: #444; margin: 20px 0; width: 100%; }
     </style>
 </head>
 <body>
 
 <div class="app">
     <div class="logo">
-        <svg width="50" height="50" viewBox="0 0 100 100">
-            <rect width="100" height="100" rx="20" fill="#6c5ce7"/>
-            <text x="50" y="65" text-anchor="middle" fill="white" font-size="40" font-weight="bold">1K</text>
+        <svg class="app-icon-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="100" height="100" rx="20" fill="#1f2833"/>
+            <path d="M50 15C50 15 30 35 30 55C30 65 38 73 48 73C48 73 49 85 50 85C51 85 52 73 52 73C62 73 70 65 70 55C70 35 50 15 50 15Z" fill="#66fcf1" opacity="0.2"/>
+            <path d="M50 15C50 15 30 35 30 55C30 65 38 73 48 73C48 73 49 85 50 85C51 85 52 73 52 73C62 73 70 65 70 55C70 35 50 15 50 15Z" stroke="#66fcf1" stroke-width="3"/>
+            <text x="50%" y="57%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-weight="900" font-size="22">1000</text>
+            <circle cx="50" cy="50" r="42" stroke="#6c5ce7" stroke-width="2" stroke-dasharray="8 6"/>
         </svg>
     </div>
-    <h1>TYSIĄC MASTER v1.7.5</h1>
+    
+    <h1>TYSIĄC MASTER</h1>
 
-    <div id="screen-start" class="card">
-        <label>Tryb gry</label>
-        <select id="mode" onchange="initNames()">
-            <option value="3">3 Graczy</option>
-            <option value="2">2 Pary</option>
+    <div id="screen-start" class="setup-card">
+        <label>Tryb rozgrywki</label>
+        <select id="gameMode" onchange="renderNameInputs()">
+            <option value="3">3 Graczy (Klasyczny)</option>
+            <option value="2">2 Pary (Na krzyż)</option>
         </select>
-        <div id="name-fields"></div>
-        <button class="btn" onclick="start()">ROZPOCZNIJ GRĘ</button>
+        <div id="nameInputsArea"></div>
+        <button class="btn" onclick="startGame()">ROZPOCZNIJ GRĘ</button>
     </div>
 
     <div id="screen-game" class="hidden">
         <div id="board" class="score-board"></div>
 
-        <div class="card">
+        <div class="round-form">
             <label>Kto licytował?</label>
-            <select id="bidder" onchange="renderOthers()"></select>
+            <select id="bidderSelect" onchange="updateOthersFields()"></select>
+
             <div class="grid-2">
-                <div><label>Licytacja</label><select id="val-bid"></select></div>
-                <div><label>Ugrał</label><select id="val-got"></select></div>
+                <div><label>Licytacja</label><select id="bidAmt"></select></div>
+                <div><label>Ugrał</label><select id="getAmt"></select></div>
             </div>
-            <div id="others-area"></div>
-            <button class="btn" onclick="saveRound()">ZAPISZ RUNDĘ</button>
+
+            <div id="othersFields"></div>
+            <button class="btn" onclick="addRound()">ZAPISZ RUNDĘ</button>
         </div>
 
-        <div class="card">
-            <label>Historia (kliknij wynik by edytować)</label>
-            <div class="history">
-                <table>
-                    <thead id="h-head"></thead>
-                    <tbody id="h-body"></tbody>
-                </table>
-            </div>
+        <div class="history-card">
+            <label>Historia (kliknij wynik, aby edytować)</label>
+            <table id="historyTable">
+                <thead id="historyHead"></thead>
+                <tbody id="historyBody"></tbody>
+            </table>
         </div>
-        <p style="text-align:center; font-size:0.6rem; color:#444; margin: 15px 0;" onclick="location.reload()">Resetuj grę</p>
+
+        <div class="footer">
+            Tysiąc Master v1.8.0 | Stable Build<br>
+            <span onclick="location.reload()" style="text-decoration: underline; cursor:pointer;">Zresetuj aplikację</span>
+        </div>
     </div>
 </div>
 
 <script>
-    let g_names = [], g_scores = [], g_logs = [];
+    let scores = [];
+    let names = [];
+    let roundLogs = [];
 
-    function initNames() {
-        const count = document.getElementById('mode').value;
-        const div = document.getElementById('name-fields');
-        div.innerHTML = '';
-        for(let i=0; i<count; i++) {
-            div.innerHTML += `<input type="text" class="name-in" placeholder="Imię ${i+1}">`;
+    // Inicjalizacja list wyboru punktów
+    const bSel = document.getElementById('bidAmt'), gSel = document.getElementById('getAmt');
+    for(let i=100; i<=400; i+=10) bSel.innerHTML += `<option value="${i}">${i}</option>`;
+    for(let i=0; i<=400; i+=10) gSel.innerHTML += `<option value="${i}">${i}</option>`;
+    gSel.innerHTML += `<option value="0">0</option>`; // Opcja ugrania zera
+    gSel.value = "100";
+
+    // Dynamiczne generowanie pól imion
+    function renderNameInputs() {
+        const mode = parseInt(document.getElementById('gameMode').value);
+        const container = document.getElementById('nameInputsArea');
+        container.innerHTML = `<label style="margin-top:10px; display:block;">Imiona:</label>`;
+        for(let i=0; i<mode; i++) {
+            const label = mode === 2 ? `Para ${i+1}` : `Gracz ${i+1}`;
+            container.innerHTML += `<input type="text" class="name-input" placeholder="${label}">`;
         }
     }
 
-    function initPoints() {
-        const b = document.getElementById('val-bid'), g = document.getElementById('val-got');
-        for(let i=100; i<=400; i+=10) { b.innerHTML += `<option value="${i}">${i}</option>`; g.innerHTML += `<option value="${i}">${i}</option>`; }
-        g.innerHTML += `<option value="0">0</option>`;
-        g.value = "100";
-    }
+    // Uruchomienie gry
+    function startGame() {
+        const inputElements = document.querySelectorAll('.name-input');
+        const mode = parseInt(document.getElementById('gameMode').value);
+        names = [];
+        inputElements.forEach((el, i) => {
+            names.push(el.value.trim() || (mode === 2 ? `Para ${i+1}` : `Gracz ${i+1}`));
+        });
+        
+        scores = new Array(names.length).fill(0);
+        
+        // Nagłówek tabeli historii
+        let headHtml = `<tr><th>#</th>`;
+        names.forEach(n => headHtml += `<th>${n.substring(0,5)}</th>`); // Skrócone imiona w tabeli
+        headHtml += `</tr>`;
+        document.getElementById('historyHead').innerHTML = headHtml;
 
-    function start() {
-        const ins = document.querySelectorAll('.name-in');
-        g_names = Array.from(ins).map((el, i) => el.value.trim() || "G" + (i+1));
-        g_scores = new Array(g_names.length).fill(0);
         document.getElementById('screen-start').classList.add('hidden');
         document.getElementById('screen-game').classList.remove('hidden');
-        document.getElementById('h-head').innerHTML = `<tr><th>#</th>${g_names.map(n => `<th>${n.substring(0,5)}</th>`).join('')}</tr>`;
-        renderAll();
+        refreshUI();
     }
 
+    // Przeliczanie sumy na podstawie historii (kluczowe dla edycji)
     function calculateTotal() {
-        g_scores = new Array(g_names.length).fill(0);
-        g_logs.forEach(round => {
-            round.forEach((val, i) => { g_scores[i] += val; });
+        scores = new Array(names.length).fill(0);
+        roundLogs.forEach(round => {
+            round.forEach((val, i) => {
+                scores[i] += val;
+            });
         });
     }
 
-    function renderAll() {
-        calculateTotal();
-        document.getElementById('board').innerHTML = g_names.map((n, i) => `
-            <div class="score-item">
-                <span class="score-val">${g_scores[i]}</span>
-                <span class="score-name">${n}</span>
-            </div>`).join('');
-
-        const bSelect = document.getElementById('bidder');
-        const prev = bSelect.value;
-        bSelect.innerHTML = g_names.map((n, i) => `<option value="${i}">${n}</option>`).join('');
-        if(prev !== "") bSelect.value = prev;
-
-        renderOthers();
+    // Odświeżanie całego interfejsu
+    function refreshUI() {
+        calculateTotal(); // Najpierw przelicz sumę
+        
+        const board = document.getElementById('board'), bdr = document.getElementById('bidderSelect');
+        board.innerHTML = ""; bdr.innerHTML = "";
+        
+        names.forEach((name, i) => {
+            // Kafelki wyników (kliknięcie edytuje sumę - rzadziej używane, ale zostawiam)
+            board.innerHTML += `
+                <div class="score-item" onclick="manualEditTotal(${i})">
+                    <span class="score-val">${scores[i]}</span>
+                    <span class="score-name">${name}</span>
+                </div>`;
+            // Lista licytującego
+            bdr.innerHTML += `<option value="${i}">${name}</option>`;
+        });
+        
+        updateOthersFields();
         renderHistory();
     }
 
-    function renderOthers() {
-        const bIdx = document.getElementById('bidder').value || 0;
-        const area = document.getElementById('others-area');
-        area.innerHTML = '<label>Punkty reszty</label><div class="grid-2">' + 
-            g_names.map((n, i) => i != bIdx ? `<div><small>${n}</small><select class="o-val" data-idx="${i}">
-                <option value="0">0</option>${[10,20,30,40,50,60,70,80,90,100,120,150,200].map(v=>`<option value="${v}">${v}</option>`).join('')}
-            </select></div>` : '').join('') + '</div>';
+    // Dynamiczne pola dla przeciwników
+    function updateOthersFields() {
+        const bIdx = document.getElementById('bidderSelect').value || 0;
+        const container = document.getElementById('othersFields');
+        container.innerHTML = `<label>Punkty reszty (0-400):</label><div class="grid-2">`;
+        names.forEach((name, i) => {
+            if(i != bIdx) { // i jest różne od bIdx (używam != bo bidderSelect.value to string)
+                container.innerHTML += `<div><small>${name}</small><select class="other-p" data-idx="${i}">
+                    <option value="0">0</option>${[10,20,30,40,50,60,70,80,90,100,120,150,180,200,250,300].map(v=>`<option value="${v}">${v}</option>`).join('')}
+                </select></div>`;
+            }
+        });
+        container.innerHTML += `</div>`;
     }
 
-    function saveRound() {
-        const bIdx = document.getElementById('bidder').value;
-        const bid = parseInt(document.getElementById('val-bid').value);
-        const got = parseInt(document.getElementById('val-got').value);
-        let delta = new Array(g_names.length).fill(0);
-        delta[bIdx] = (got >= bid) ? got : -bid;
-        document.querySelectorAll('.o-val').forEach(s => { delta[s.dataset.idx] = parseInt(s.value); });
-        g_logs.push(delta);
-        renderAll();
+    // Zapisywanie rundy
+    function addRound() {
+        let currentRoundDelta = new Array(names.length).fill(0);
+        const bIdx = parseInt(document.getElementById('bidderSelect').value);
+        const bid = parseInt(bSel.value), got = parseInt(gSel.value);
+        
+        // Punkty licytującego
+        const bidderPoints = (got >= bid) ? got : -bid;
+        currentRoundDelta[bIdx] = bidderPoints;
+
+        // Punkty reszty
+        document.querySelectorAll('.other-p').forEach(sel => {
+            currentRoundDelta[parseInt(sel.dataset.idx)] = parseInt(sel.value);
+        });
+
+        roundLogs.push(currentRoundDelta);
+        refreshUI();
     }
 
+    // Renderowanie tabeli historii z obsługą edycji
     function renderHistory() {
-        document.getElementById('h-body').innerHTML = g_logs.map((r, rIdx) => `<tr>
-            <td>${rIdx+1}</td>${r.map((v, pIdx) => `
-                <td onclick="editLog(${rIdx}, ${pIdx})" style="color:${v<0?'#ff7675':v>0?'#55efc4':'#888'}">${v}</td>
-            `).join('')}
-        </tr>`).join('');
+        const body = document.getElementById('historyBody');
+        body.innerHTML = "";
+        roundLogs.forEach((round, roundIndex) => {
+            let rowHtml = `<tr><td style="color:#888; font-weight:bold;">${roundIndex + 1}</td>`;
+            round.forEach((val, playerIndex) => {
+                const color = val < 0 ? "#ff7675" : (val > 0 ? "#55efc4" : "#888");
+                // Dodajemy onclick do komórki, aby edytować konkretny wynik
+                rowHtml += `<td onclick="editRoundLog(${roundIndex}, ${playerIndex})" style="color: ${color}; font-weight:bold;">${val > 0 ? '+'+val : val}</td>`;
+            });
+            rowHtml += `</tr>`;
+            body.innerHTML += rowHtml;
+        });
+        
+        // Auto-scroll tabeli na dół
+        const container = document.querySelector('.history-card');
+        container.scrollTop = container.scrollHeight;
     }
 
-    function editLog(rIdx, pIdx) {
-        let newVal = prompt(`Runda ${rIdx+1}, ${g_names[pIdx]}:`, g_logs[rIdx][pIdx]);
-        if(newVal !== null) {
-            g_logs[rIdx][pIdx] = parseInt(newVal) || 0;
-            renderAll();
+    // Funkcja edycji konkretnego wpisu w historii
+    function editRoundLog(roundIdx, playerIdx) {
+        let currentVal = roundLogs[roundIdx][playerIdx];
+        let newVal = prompt(`Runda ${roundIdx + 1}, edycja dla ${names[playerIdx]}:`, currentVal);
+        
+        if (newVal !== null && !isNaN(parseInt(newVal))) {
+            roundLogs[roundIdx][playerIdx] = parseInt(newVal);
+            refreshUI(); // Przeliczy sumy i odświeży widok
         }
     }
 
-    initNames();
+    // Ręczna edycja sumy końcowej (rzadziej używane przy edycji historii)
+    function manualEditTotal(idx) {
+        let val = prompt(`Ręczna korekta sumy dla ${names[idx]}:`, scores[idx]);
+        if (val !== null && !isNaN(parseInt(val))) {
+            // Aby edycja sumy działała przy systemie opartym na logach, 
+            // musimy dodać "rundę korygującą"
+            let diff = parseInt(val) - scores[idx];
+            if(diff !== 0) {
+                let correctionRound = new Array(names.length).fill(0);
+                correctionRound[idx] = diff;
+                roundLogs.push(correctionRound);
+                refreshUI();
+            }
+        }
+    }
+
+    // Inicjalizacja przy ładowaniu strony
+    renderNameInputs();
     initPoints();
 </script>
 </body>
