@@ -1,0 +1,22 @@
+{
+  "short_name": "Tysiąc 1.7",
+  "name": "Tysiąc Master Scoreboard",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192/6c5ce7/ffffff?text=1K",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "https://via.placeholder.com/512/6c5ce7/ffffff?text=1K",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#0b0c10",
+  "display": "standalone",
+  "scope": "./",
+  "theme_color": "#6c5ce7",
+  "description": "Licznik punktów do gry w Tysiąca."
+}

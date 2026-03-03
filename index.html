@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tysiąc Master v1.7.5</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6c5ce7">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <style>
+        :root { --primary: #6c5ce7; --bg: #0b0c10; --card: #1f2833; --text: #ffffff; --accent: #66fcf1; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .app { width: 100%; max-width: 480px; }
+        .logo { text-align: center; margin: 15px 0; }
+        h1 { text-align: center; color: var(--accent); margin-bottom: 15px; font-size: 1.4rem; letter-spacing: 1px; }
+        .card { background: var(--card); padding: 20px; border-radius: 20px; margin-bottom: 15px; border: 1px solid #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        label { display: block; font-size: 0.7rem; margin-bottom: 5px; color: #888; font-weight: bold; text-transform: uppercase; }
+        input, select { width: 100%; padding: 14px; background: #0b0c10; border: 1px solid #45a29e; color: white; border-radius: 12px; font-size: 1rem; margin-bottom: 15px; }
+        .score-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 10px; margin-bottom: 15px; }
+        .score-item { background: #1f2833; padding: 12px; border-radius: 15px; text-align: center; border-bottom: 4px solid var(--primary); }
+        .score-val { display: block; font-size: 1.4rem; font-weight: bold; color: var(--accent); }
+        .score-name { font-size: 0.7rem; color: #c5c6c7; text-transform: uppercase; }
+        .btn { background: var(--primary); color: white; border: none; width: 100%; padding: 16px; border-radius: 15px; font-weight: bold; font-size: 1rem; cursor: pointer; transition: 0.2s; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .history { overflow-y: auto; max-height: 250px; font-size: 0.8rem; }
+        table { width: 100%; border-collapse: collapse; text-align: center; }
+        th { color: var(--accent); padding: 8px; border-bottom: 2px solid #444; position: sticky; top: 0; background: var(--card); }
+        td { padding: 10px; border-bottom: 1px solid #333; cursor: pointer; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <div class="logo">
+        <svg width="50" height="50" viewBox="0 0 100 100">
+            <rect width="100" height="100" rx="20" fill="#6c5ce7"/>
+            <text x="50" y="65" text-anchor="middle" fill="white" font-size="40" font-weight="bold">1K</text>
+        </svg>
+    </div>
+    <h1>TYSIĄC MASTER v1.7.5</h1>
+
+    <div id="screen-start" class="card">
+        <label>Tryb gry</label>
+        <select id="mode" onchange="initNames()">
+            <option value="3">3 Graczy</option>
+            <option value="2">2 Pary</option>
+        </select>
+        <div id="name-fields"></div>
+        <button class="btn" onclick="start()">ROZPOCZNIJ GRĘ</button>
+    </div>
+
+    <div id="screen-game" class="hidden">
+        <div id="board" class="score-board"></div>
+
+        <div class="card">
+            <label>Kto licytował?</label>
+            <select id="bidder" onchange="renderOthers()"></select>
+            <div class="grid-2">
+                <div><label>Licytacja</label><select id="val-bid"></select></div>
+                <div><label>Ugrał</label><select id="val-got"></select></div>
+            </div>
+            <div id="others-area"></div>
+            <button class="btn" onclick="saveRound()">ZAPISZ RUNDĘ</button>
+        </div>
+
+        <div class="card">
+            <label>Historia (kliknij wynik by edytować)</label>
+            <div class="history">
+                <table>
+                    <thead id="h-head"></thead>
+                    <tbody id="h-body"></tbody>
+                </table>
+            </div>
+        </div>
+        <p style="text-align:center; font-size:0.6rem; color:#444; margin: 15px 0;" onclick="location.reload()">Resetuj grę</p>
+    </div>
+</div>
+
+<script>
+    let g_names = [], g_scores = [], g_logs = [];
+
+    function initNames() {
+        const count = document.getElementById('mode').value;
+        const div = document.getElementById('name-fields');
+        div.innerHTML = '';
+        for(let i=0; i<count; i++) {
+            div.innerHTML += `<input type="text" class="name-in" placeholder="Imię ${i+1}">`;
+        }
+    }
+
+    function initPoints() {
+        const b = document.getElementById('val-bid'), g = document.getElementById('val-got');
+        for(let i=100; i<=400; i+=10) { b.innerHTML += `<option value="${i}">${i}</option>`; g.innerHTML += `<option value="${i}">${i}</option>`; }
+        g.innerHTML += `<option value="0">0</option>`;
+        g.value = "100";
+    }
+
+    function start() {
+        const ins = document.querySelectorAll('.name-in');
+        g_names = Array.from(ins).map((el, i) => el.value.trim() || "G" + (i+1));
+        g_scores = new Array(g_names.length).fill(0);
+        document.getElementById('screen-start').classList.add('hidden');
+        document.getElementById('screen-game').classList.remove('hidden');
+        document.getElementById('h-head').innerHTML = `<tr><th>#</th>${g_names.map(n => `<th>${n.substring(0,5)}</th>`).join('')}</tr>`;
+        renderAll();
+    }
+
+    function calculateTotal() {
+        g_scores = new Array(g_names.length).fill(0);
+        g_logs.forEach(round => {
+            round.forEach((val, i) => { g_scores[i] += val; });
+        });
+    }
+
+    function renderAll() {
+        calculateTotal();
+        document.getElementById('board').innerHTML = g_names.map((n, i) => `
+            <div class="score-item">
+                <span class="score-val">${g_scores[i]}</span>
+                <span class="score-name">${n}</span>
+            </div>`).join('');
+
+        const bSelect = document.getElementById('bidder');
+        const prev = bSelect.value;
+        bSelect.innerHTML = g_names.map((n, i) => `<option value="${i}">${n}</option>`).join('');
+        if(prev !== "") bSelect.value = prev;
+
+        renderOthers();
+        renderHistory();
+    }
+
+    function renderOthers() {
+        const bIdx = document.getElementById('bidder').value || 0;
+        const area = document.getElementById('others-area');
+        area.innerHTML = '<label>Punkty reszty</label><div class="grid-2">' + 
+            g_names.map((n, i) => i != bIdx ? `<div><small>${n}</small><select class="o-val" data-idx="${i}">
+                <option value="0">0</option>${[10,20,30,40,50,60,70,80,90,100,120,150,200].map(v=>`<option value="${v}">${v}</option>`).join('')}
+            </select></div>` : '').join('') + '</div>';
+    }
+
+    function saveRound() {
+        const bIdx = document.getElementById('bidder').value;
+        const bid = parseInt(document.getElementById('val-bid').value);
+        const got = parseInt(document.getElementById('val-got').value);
+        let delta = new Array(g_names.length).fill(0);
+        delta[bIdx] = (got >= bid) ? got : -bid;
+        document.querySelectorAll('.o-val').forEach(s => { delta[s.dataset.idx] = parseInt(s.value); });
+        g_logs.push(delta);
+        renderAll();
+    }
+
+    function renderHistory() {
+        document.getElementById('h-body').innerHTML = g_logs.map((r, rIdx) => `<tr>
+            <td>${rIdx+1}</td>${r.map((v, pIdx) => `
+                <td onclick="editLog(${rIdx}, ${pIdx})" style="color:${v<0?'#ff7675':v>0?'#55efc4':'#888'}">${v}</td>
+            `).join('')}
+        </tr>`).join('');
+    }
+
+    function editLog(rIdx, pIdx) {
+        let newVal = prompt(`Runda ${rIdx+1}, ${g_names[pIdx]}:`, g_logs[rIdx][pIdx]);
+        if(newVal !== null) {
+            g_logs[rIdx][pIdx] = parseInt(newVal) || 0;
+            renderAll();
+        }
+    }
+
+    initNames();
+    initPoints();
+</script>
+</body>
+</html>
