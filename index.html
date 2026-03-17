@@ -123,6 +123,46 @@
     let roundLogs = [];
     let victoryTriggered = false;
 
+    // Funkcja do generowania dźwięku zwycięstwa (fanfara Web Audio API)
+    function playVictorySound() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioContext();
+            
+            const melody = [
+                { f: 523.25, d: 0.1 }, // C5
+                { f: 523.25, d: 0.1 }, // C5
+                { f: 523.25, d: 0.1 }, // C5
+                { f: 659.25, d: 0.3 }, // E5
+                { f: 783.99, d: 0.3 }, // G5
+                { f: 1046.50, d: 0.6 } // C6
+            ];
+
+            let time = ctx.currentTime;
+            
+            melody.forEach(note => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(note.f, time);
+                
+                gain.gain.setValueAtTime(0.1, time);
+                gain.gain.exponentialRampToValueAtTime(0.01, time + note.d);
+                
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.start(time);
+                osc.stop(time + note.d);
+                
+                time += note.d + 0.05;
+            });
+        } catch(e) {
+            console.log("Audio not supported or blocked");
+        }
+    }
+
     // Inicjalizacja list wyboru punktów
     function initPointsSelects() {
         const bSel = document.getElementById('bidAmt');
@@ -190,6 +230,7 @@
         const winnerIndex = scores.findIndex(s => s >= 1000);
         if (winnerIndex !== -1 && !victoryTriggered) {
             launchFireworks();
+            playVictorySound(); // Dodano dźwięk
             victoryTriggered = true;
         } else if (winnerIndex === -1) {
             victoryTriggered = false; // Reset, jeśli wynik spadł poniżej 1000 po edycji
