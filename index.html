@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tysiąc Master v1.8.0</title>
+    <title>Tysiąc Master v1.8.1</title>
     
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#6c5ce7">
@@ -11,15 +11,17 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <link rel="apple-touch-icon" href="https://img.itch.zone/aW1nLzE5OTQ0MjUwLnBuZw==/original/k466N%2B.png">
+    
+    <!-- Biblioteka do fajerwerków (Confetti) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
     <style>
         :root { --primary: #6c5ce7; --bg: #0b0c10; --card: #1f2833; --text: #ffffff; --accent: #66fcf1; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+        body { font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 15px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
         .app { width: 100%; max-width: 480px; }
         
-        /* Nowe Logo SVG */
-        .logo { text-align: center; margin: 20px 0; }
+        .logo { text-align: center; margin: 10px 0; }
         .app-icon-svg { width: 70px; height: 70px; filter: drop-shadow(0 0 8px var(--accent)); }
         
         h1 { text-align: center; font-weight: 900; background: linear-gradient(to right, #66fcf1, #45a29e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 20px; font-size: 1.8rem; letter-spacing: 1px; }
@@ -29,7 +31,7 @@
         input, select { width: 100%; padding: 14px; background: #0b0c10; border: 1px solid #45a29e; color: white; border-radius: 12px; font-size: 1rem; margin-bottom: 12px; }
         
         .score-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .score-item { background: #1f2833; padding: 15px; border-radius: 18px; text-align: center; border-bottom: 4px solid var(--primary); cursor: pointer; transition: 0.2s; }
+        .score-item { background: #1f2833; padding: 15px; border-radius: 18px; text-align: center; border-bottom: 4px solid var(--primary); cursor: pointer; transition: 0.2s; position: relative; overflow: hidden; }
         .score-item:active { transform: scale(0.95); }
         .score-val { display: block; font-size: 1.8rem; font-weight: 900; color: var(--accent); pointer-events: none; }
         .score-name { font-size: 0.8rem; font-weight: bold; color: #c5c6c7; pointer-events: none; }
@@ -40,14 +42,21 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .hidden { display: none !important; }
         
-        /* Tabela historii */
-        .history-card { overflow-x: auto; padding: 15px; max-height: 250px; overflow-y: auto; }
+        .history-card { overflow-x: auto; padding: 15px; max-height: 300px; overflow-y: auto; }
         table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
         th { border-bottom: 2px solid var(--accent); padding: 10px; text-align: center; color: var(--accent); position: sticky; top: 0; background: var(--card); z-index: 10; }
         td { padding: 12px; text-align: center; border-bottom: 1px solid #333; cursor: pointer; }
         td:hover { background: rgba(102, 252, 241, 0.1); }
         
-        .footer { text-align: center; font-size: 0.65rem; color: #444; margin: 20px 0; width: 100%; }
+        .footer { text-align: center; font-size: 0.65rem; color: #555; margin: 20px 0; width: 100%; line-height: 1.5; }
+        .reset-link { text-decoration: underline; cursor:pointer; color: var(--accent); }
+
+        /* Klasa dla zwycięzcy */
+        .winner { animation: pulse-winner 1s infinite alternate; border-bottom-color: #ffd700; }
+        @keyframes pulse-winner {
+            from { box-shadow: 0 0 5px #ffd700; }
+            to { box-shadow: 0 0 20px #ffd700; }
+        }
     </style>
 </head>
 <body>
@@ -58,13 +67,14 @@
             <rect width="100" height="100" rx="20" fill="#1f2833"/>
             <path d="M50 15C50 15 30 35 30 55C30 65 38 73 48 73C48 73 49 85 50 85C51 85 52 73 52 73C62 73 70 65 70 55C70 35 50 15 50 15Z" fill="#66fcf1" opacity="0.2"/>
             <path d="M50 15C50 15 30 35 30 55C30 65 38 73 48 73C48 73 49 85 50 85C51 85 52 73 52 73C62 73 70 65 70 55C70 35 50 15 50 15Z" stroke="#66fcf1" stroke-width="3"/>
-            <text x="50%" y="57%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="Inter, sans-serif" font-weight="900" font-size="22">1000</text>
+            <text x="50%" y="57%" dominant-baseline="middle" text-anchor="middle" fill="#ffffff" font-family="sans-serif" font-weight="900" font-size="22">1000</text>
             <circle cx="50" cy="50" r="42" stroke="#6c5ce7" stroke-width="2" stroke-dasharray="8 6"/>
         </svg>
     </div>
     
     <h1>TYSIĄC MASTER</h1>
 
+    <!-- Ekran Startowy -->
     <div id="screen-start" class="setup-card">
         <label>Tryb rozgrywki</label>
         <select id="gameMode" onchange="renderNameInputs()">
@@ -75,6 +85,7 @@
         <button class="btn" onclick="startGame()">ROZPOCZNIJ GRĘ</button>
     </div>
 
+    <!-- Ekran Gry -->
     <div id="screen-game" class="hidden">
         <div id="board" class="score-board"></div>
 
@@ -100,8 +111,8 @@
         </div>
 
         <div class="footer">
-            Tysiąc Master v1.8.0 | Stable Build<br>
-            <span onclick="location.reload()" style="text-decoration: underline; cursor:pointer;">Zresetuj aplikację</span>
+            Tysiąc Master v1.8.1 | Stable Build<br>
+            <span class="reset-link" onclick="if(confirm('Zresetować grę?')) location.reload()">Zresetuj aplikację</span>
         </div>
     </div>
 </div>
@@ -110,13 +121,24 @@
     let scores = [];
     let names = [];
     let roundLogs = [];
+    let victoryTriggered = false;
 
     // Inicjalizacja list wyboru punktów
-    const bSel = document.getElementById('bidAmt'), gSel = document.getElementById('getAmt');
-    for(let i=100; i<=400; i+=10) bSel.innerHTML += `<option value="${i}">${i}</option>`;
-    for(let i=0; i<=400; i+=10) gSel.innerHTML += `<option value="${i}">${i}</option>`;
-    gSel.innerHTML += `<option value="0">0</option>`; // Opcja ugrania zera
-    gSel.value = "100";
+    function initPointsSelects() {
+        const bSel = document.getElementById('bidAmt');
+        const gSel = document.getElementById('getAmt');
+        
+        bSel.innerHTML = "";
+        gSel.innerHTML = "";
+
+        for(let i=100; i<=400; i+=10) {
+            bSel.innerHTML += `<option value="${i}">${i}</option>`;
+        }
+        for(let i=0; i<=400; i+=10) {
+            gSel.innerHTML += `<option value="${i}">${i}</option>`;
+        }
+        gSel.value = "100";
+    }
 
     // Dynamiczne generowanie pól imion
     function renderNameInputs() {
@@ -134,24 +156,26 @@
         const inputElements = document.querySelectorAll('.name-input');
         const mode = parseInt(document.getElementById('gameMode').value);
         names = [];
+        
         inputElements.forEach((el, i) => {
             names.push(el.value.trim() || (mode === 2 ? `Para ${i+1}` : `Gracz ${i+1}`));
         });
         
         scores = new Array(names.length).fill(0);
         
-        // Nagłówek tabeli historii
         let headHtml = `<tr><th>#</th>`;
-        names.forEach(n => headHtml += `<th>${n.substring(0,5)}</th>`); // Skrócone imiona w tabeli
+        names.forEach(n => headHtml += `<th>${n.substring(0,6)}</th>`);
         headHtml += `</tr>`;
         document.getElementById('historyHead').innerHTML = headHtml;
 
         document.getElementById('screen-start').classList.add('hidden');
         document.getElementById('screen-game').classList.remove('hidden');
+        
+        initPointsSelects();
         refreshUI();
     }
 
-    // Przeliczanie sumy na podstawie historii (kluczowe dla edycji)
+    // Przeliczanie sumy na podstawie historii
     function calculateTotal() {
         scores = new Array(names.length).fill(0);
         roundLogs.forEach(round => {
@@ -161,36 +185,77 @@
         });
     }
 
+    // Sprawdzanie czy ktoś wygrał
+    function checkVictory() {
+        const winnerIndex = scores.findIndex(s => s >= 1000);
+        if (winnerIndex !== -1 && !victoryTriggered) {
+            launchFireworks();
+            victoryTriggered = true;
+        } else if (winnerIndex === -1) {
+            victoryTriggered = false; // Reset, jeśli wynik spadł poniżej 1000 po edycji
+        }
+    }
+
+    // Efekt fajerwerków
+    function launchFireworks() {
+        const duration = 5 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+            confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+        }, 250);
+    }
+
     // Odświeżanie całego interfejsu
     function refreshUI() {
-        calculateTotal(); // Najpierw przelicz sumę
+        calculateTotal();
+        checkVictory();
         
-        const board = document.getElementById('board'), bdr = document.getElementById('bidderSelect');
-        board.innerHTML = ""; bdr.innerHTML = "";
+        const board = document.getElementById('board');
+        const bdr = document.getElementById('bidderSelect');
+        const prevBidder = bdr.value;
+
+        board.innerHTML = ""; 
+        bdr.innerHTML = "";
         
         names.forEach((name, i) => {
-            // Kafelki wyników (kliknięcie edytuje sumę - rzadziej używane, ale zostawiam)
+            const isWinner = scores[i] >= 1000;
             board.innerHTML += `
-                <div class="score-item" onclick="manualEditTotal(${i})">
+                <div class="score-item ${isWinner ? 'winner' : ''}" onclick="manualEditTotal(${i})">
                     <span class="score-val">${scores[i]}</span>
                     <span class="score-name">${name}</span>
                 </div>`;
-            // Lista licytującego
             bdr.innerHTML += `<option value="${i}">${name}</option>`;
         });
         
+        if(prevBidder !== "") bdr.value = prevBidder;
+
         updateOthersFields();
         renderHistory();
     }
 
     // Dynamiczne pola dla przeciwników
     function updateOthersFields() {
-        const bIdx = document.getElementById('bidderSelect').value || 0;
+        const bIdx = document.getElementById('bidderSelect').value;
         const container = document.getElementById('othersFields');
         container.innerHTML = `<label>Punkty reszty (0-400):</label><div class="grid-2">`;
+        
         names.forEach((name, i) => {
-            if(i != bIdx) { // i jest różne od bIdx (używam != bo bidderSelect.value to string)
-                container.innerHTML += `<div><small>${name}</small><select class="other-p" data-idx="${i}">
+            if(i != bIdx) {
+                container.innerHTML += `<div><small style="font-size:0.6rem; color:#888;">${name}</small><select class="other-p" data-idx="${i}">
                     <option value="0">0</option>${[10,20,30,40,50,60,70,80,90,100,120,150,180,200,250,300].map(v=>`<option value="${v}">${v}</option>`).join('')}
                 </select></div>`;
             }
@@ -202,58 +267,54 @@
     function addRound() {
         let currentRoundDelta = new Array(names.length).fill(0);
         const bIdx = parseInt(document.getElementById('bidderSelect').value);
-        const bid = parseInt(bSel.value), got = parseInt(gSel.value);
+        const bid = parseInt(document.getElementById('bidAmt').value);
+        const got = parseInt(document.getElementById('getAmt').value);
         
-        // Punkty licytującego
-        const bidderPoints = (got >= bid) ? got : -bid;
-        currentRoundDelta[bIdx] = bidderPoints;
+        currentRoundDelta[bIdx] = (got >= bid) ? got : -bid;
 
-        // Punkty reszty
         document.querySelectorAll('.other-p').forEach(sel => {
             currentRoundDelta[parseInt(sel.dataset.idx)] = parseInt(sel.value);
         });
 
         roundLogs.push(currentRoundDelta);
+        document.getElementById('getAmt').value = "100";
         refreshUI();
     }
 
-    // Renderowanie tabeli historii z obsługą edycji
+    // Renderowanie tabeli historii
     function renderHistory() {
         const body = document.getElementById('historyBody');
         body.innerHTML = "";
+        
         roundLogs.forEach((round, roundIndex) => {
             let rowHtml = `<tr><td style="color:#888; font-weight:bold;">${roundIndex + 1}</td>`;
             round.forEach((val, playerIndex) => {
                 const color = val < 0 ? "#ff7675" : (val > 0 ? "#55efc4" : "#888");
-                // Dodajemy onclick do komórki, aby edytować konkretny wynik
                 rowHtml += `<td onclick="editRoundLog(${roundIndex}, ${playerIndex})" style="color: ${color}; font-weight:bold;">${val > 0 ? '+'+val : val}</td>`;
             });
             rowHtml += `</tr>`;
             body.innerHTML += rowHtml;
         });
         
-        // Auto-scroll tabeli na dół
         const container = document.querySelector('.history-card');
         container.scrollTop = container.scrollHeight;
     }
 
-    // Funkcja edycji konkretnego wpisu w historii
+    // Edycja wpisu w historii
     function editRoundLog(roundIdx, playerIdx) {
         let currentVal = roundLogs[roundIdx][playerIdx];
         let newVal = prompt(`Runda ${roundIdx + 1}, edycja dla ${names[playerIdx]}:`, currentVal);
         
         if (newVal !== null && !isNaN(parseInt(newVal))) {
             roundLogs[roundIdx][playerIdx] = parseInt(newVal);
-            refreshUI(); // Przeliczy sumy i odświeży widok
+            refreshUI();
         }
     }
 
-    // Ręczna edycja sumy końcowej (rzadziej używane przy edycji historii)
+    // Ręczna korekta
     function manualEditTotal(idx) {
-        let val = prompt(`Ręczna korekta sumy dla ${names[idx]}:`, scores[idx]);
+        let val = prompt(`Ustaw nową sumę dla ${names[idx]}:`, scores[idx]);
         if (val !== null && !isNaN(parseInt(val))) {
-            // Aby edycja sumy działała przy systemie opartym na logach, 
-            // musimy dodać "rundę korygującą"
             let diff = parseInt(val) - scores[idx];
             if(diff !== 0) {
                 let correctionRound = new Array(names.length).fill(0);
@@ -264,9 +325,9 @@
         }
     }
 
-    // Inicjalizacja przy ładowaniu strony
-    renderNameInputs();
-    initPoints();
+    window.onload = () => {
+        renderNameInputs();
+    };
 </script>
 </body>
 </html>
